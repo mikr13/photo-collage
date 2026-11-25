@@ -46,7 +46,7 @@ Photo Collage is a [Next.js](https://nextjs.org) PWA for turning 2–9 photos in
 
 > Just want to make a collage? Use the free hosted app at **[photo-collage.mikr13.com](https://photo-collage.mikr13.com)** — no setup required. The steps below are only for running or modifying the project yourself.
 
-Requires **Node.js 20+**.
+Requires **Node.js 22.x**.
 
 ```bash
 # Clone

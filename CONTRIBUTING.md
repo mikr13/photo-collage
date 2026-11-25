@@ -11,7 +11,7 @@ Any contribution should preserve the project's two non-negotiables:
 
 ## Development Setup
 
-Requires **Node.js 20+**.
+Requires **Node.js 22.x**.
 
 ```bash
 git clone <your-repository-url>
