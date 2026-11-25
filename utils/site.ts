@@ -1,7 +1,7 @@
 /**
  * Canonical site URL, shared by metadata, robots, and the sitemap.
  *
- * In production set NEXT_PUBLIC_SITE_URL (e.g. https://photogrouper.com) so the
+ * In production set NEXT_PUBLIC_SITE_URL (e.g. https://photo-collage.mikr13.com) so the
  * canonical/OG URLs use the custom domain rather than the *.vercel.app host.
  */
 export const SITE_URL =

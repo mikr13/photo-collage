@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { APP_NAME } from "@/utils/brand";
+import { SITE_URL } from "@/utils/site";
+
+const SITE_HOSTNAME = new URL(SITE_URL).hostname;
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "How Photo Grouper handles your data: photos are processed entirely in your browser and never uploaded. No account, no tracking cookies.",
+    `How ${APP_NAME} handles your data: photos are processed entirely in your browser and never uploaded. No account, no tracking cookies.`,
   alternates: { canonical: "/privacy" },
 };
 
@@ -15,20 +19,20 @@ export default function PrivacyPage() {
         href="/"
         className="text-sm font-medium text-indigo-600 hover:underline"
       >
-        ← Back to Photo Grouper
+        ← Back to {APP_NAME}
       </Link>
 
       <h1 className="mt-8 text-3xl font-bold text-slate-900">Privacy Policy</h1>
-      <p className="mt-2 text-sm text-slate-500">Effective date: July 22, 2026</p>
+      <p className="mt-2 text-sm text-slate-500">Effective date: November 25, 2026</p>
 
       <p className="mt-6">
-        Photo Grouper is built privacy-first. This policy explains, in plain
+        {APP_NAME} is built privacy-first. This policy explains, in plain
         language, what happens to your data when you use the app at{" "}
         <a
-          href="https://photogrouper.com"
+          href={SITE_URL}
           className="text-indigo-600 hover:underline"
         >
-          photogrouper.com
+          {SITE_HOSTNAME}
         </a>
         .
       </p>
@@ -51,9 +55,8 @@ export default function PrivacyPage() {
         </li>
         <li>
           The only data collected is{" "}
-          <strong>anonymous, aggregated usage analytics</strong> on the official
-          hosted site — and even that is turned off in self-hosted copies by
-          default.
+          <strong>anonymous, aggregated usage analytics</strong> on the hosted
+          site — and even that is turned off in self-hosted copies by default.
         </li>
       </ul>
 
@@ -70,7 +73,7 @@ export default function PrivacyPage() {
         </li>
         <li>
           <strong>Never transmitted</strong> — no photo, thumbnail, or derived
-          image is sent to Photo Grouper, our host, or any third party.
+          image is sent to {APP_NAME}, our host, or any third party.
         </li>
         <li>
           <strong>Not persisted</strong> — photos are not saved to a server or
@@ -83,12 +86,12 @@ export default function PrivacyPage() {
         What we collect
       </h2>
       <p className="mt-3">
-        On the official hosted site (
+        On this hosted site (
         <a
-          href="https://photogrouper.com"
+          href={SITE_URL}
           className="text-indigo-600 hover:underline"
         >
-          photogrouper.com
+          {SITE_HOSTNAME}
         </a>
         ):
       </p>
@@ -127,7 +130,7 @@ export default function PrivacyPage() {
         Cookies &amp; local storage
       </h2>
       <p className="mt-3">
-        Photo Grouper does not use tracking or advertising cookies. As a
+        {APP_NAME} does not use tracking or advertising cookies. As a
         Progressive Web App, it uses a service worker to cache the
         application&apos;s own code and assets so it can work offline — this
         cache contains app files, <strong>not</strong> your photos.
@@ -152,7 +155,7 @@ export default function PrivacyPage() {
         Self-hosted and forked versions
       </h2>
       <p className="mt-3">
-        Photo Grouper is open source, and anyone can run their own copy. In
+        {APP_NAME} is open source, and anyone can run their own copy. In
         self-hosted or forked deployments, analytics is{" "}
         <strong>disabled by default</strong> and only runs if the operator
         explicitly opts in. If you use a copy hosted by someone else, their data
@@ -163,7 +166,7 @@ export default function PrivacyPage() {
         Children&apos;s privacy
       </h2>
       <p className="mt-3">
-        Photo Grouper does not knowingly collect personal information from
+        {APP_NAME} does not knowingly collect personal information from
         anyone, including children, because it does not collect personal
         information at all.
       </p>
@@ -178,14 +181,8 @@ export default function PrivacyPage() {
 
       <h2 className="mt-10 text-xl font-semibold text-slate-900">Contact</h2>
       <p className="mt-3">
-        Questions about privacy? Open an issue on{" "}
-        <a
-          href="https://github.com/namabeeru/photo-grouper/issues"
-          className="text-indigo-600 hover:underline"
-        >
-          GitHub
-        </a>
-        .
+        Questions about privacy should be directed to the operator of this
+        deployment.
       </p>
     </main>
   );

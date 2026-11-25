@@ -1,6 +1,6 @@
 {
-    "name": "Photo Grouper",
-    "short_name": "Photo Grouper",
+    "name": "Photo Collage",
+    "short_name": "Collage",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Images, ShieldCheck, Sparkles, WifiOff } from 'lucide-react';
 import type { WorkflowConfig } from '@/utils/workflows';
+import { APP_NAME } from '@/utils/brand';
 
 interface HomePageProps {
     onSelectPhotos: () => void;
@@ -25,7 +26,7 @@ export default function HomePage({ onSelectPhotos, workflow }: HomePageProps) {
                 <header className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5 text-sm font-semibold tracking-tight text-slate-800">
                         <Image src="/icon-rounded.svg" alt="" width={32} height={32} priority />
-                        Photo Grouper
+                        {APP_NAME}
                     </div>
                     <Link
                         href="/privacy"

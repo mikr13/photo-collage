@@ -1,11 +1,15 @@
 {
-  "name": "photo-grouper",
+  "name": "photo-collage",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "scripts": {
-    "predev": "npm run prepare:compression-worker",
+    "predev": "pnpm run prepare:compression-worker",
     "dev": "next dev",
-    "build": "npm run prepare:compression-worker && next build --webpack && npm run verify:pwa",
+    "build": "pnpm run prepare:compression-worker && next build --webpack && pnpm run verify:pwa",
     "start": "next start",
     "lint": "eslint",
     "test": "tsx scripts/photo-edits.test.mjs && tsx scripts/product-features.test.mjs",
@@ -17,17 +21,18 @@
     "@vercel/analytics": "2.0.1",
     "browser-image-compression": "2.0.2",
     "lucide-react": "0.561.0",
-    "next": "16.2.11",
-    "react": "19.2.7",
-    "react-dom": "19.2.7"
+    "next": "16.4.6",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "19.3.2",
+    "@types/react-dom": "19.3.0",
+    "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
-    "eslint-config-next": "16.2.10",
+    "eslint-config-next": "16.4.6",
     "tailwindcss": "^4",
     "tsx": "4.23.1",
     "typescript": "^5"

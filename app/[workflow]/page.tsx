@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import PhotoGrouperApp from '@/components/PhotoGrouperApp';
+import PhotoCollageApp from '@/components/PhotoCollageApp';
 import { getWorkflowConfig, WORKFLOW_CONFIGS } from '@/utils/workflows';
+import { APP_NAME } from '@/utils/brand';
 
 interface WorkflowPageProps {
   params: Promise<{ workflow: string }>;
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: WorkflowPageProps): Promise<M
     description: workflow.description,
     alternates: { canonical: `/${workflow.slug}` },
     openGraph: {
-      title: `${workflow.name} | Photo Grouper`,
+      title: `${workflow.name} | ${APP_NAME}`,
       description: workflow.description,
       url: `/${workflow.slug}`,
     },
@@ -32,5 +33,5 @@ export default async function WorkflowPage({ params }: WorkflowPageProps) {
   const { workflow: slug } = await params;
   const workflow = getWorkflowConfig(slug);
   if (!workflow.slug) notFound();
-  return <PhotoGrouperApp workflow={workflow} />;
+  return <PhotoCollageApp workflow={workflow} />;
 }

@@ -1,6 +1,6 @@
-import PhotoGrouperApp from '@/components/PhotoGrouperApp';
+import PhotoCollageApp from '@/components/PhotoCollageApp';
 import { DEFAULT_WORKFLOW } from '@/utils/workflows';
 
 export default function HomePage() {
-  return <PhotoGrouperApp workflow={DEFAULT_WORKFLOW} />;
+  return <PhotoCollageApp workflow={DEFAULT_WORKFLOW} />;
 }

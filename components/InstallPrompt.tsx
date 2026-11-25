@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Download, X, Share } from 'lucide-react';
+import { APP_NAME } from '@/utils/brand';
 
 interface BeforeInstallPromptEvent extends Event {
     prompt: () => Promise<void>;
@@ -102,7 +103,7 @@ export default function InstallPrompt({ enabled = true }: { enabled?: boolean })
 
                     <div className="flex-1 min-w-0">
                         <h3 className="text-white font-medium text-sm mb-1">
-                            Use Photo Grouper Offline
+                            Use {APP_NAME} Offline
                         </h3>
 
                         {isIOS ? (

@@ -11,6 +11,7 @@ import { saveCollage, DEFAULT_EXPORT_OPTIONS, DEFAULT_COMPARISON_LABELS, type Ex
 import { PhotoEdits, DEFAULT_EDITS, CollageStyle, DEFAULT_STYLE } from '@/utils/photoEdits';
 import { DEFAULT_WORKFLOW, type WorkflowConfig } from '@/utils/workflows';
 import { trackProductEvent } from '@/utils/analytics';
+import { APP_NAME } from '@/utils/brand';
 
 import { PhotoData } from '@/types/photo';
 
@@ -34,11 +35,11 @@ const initEdits = (template: CollageTemplate, fitMode: PhotoEdits['fitMode']) =>
   return new Map(template.slots.map((slot) => [slot.id, { ...DEFAULT_EDITS, fitMode }]));
 };
 
-interface PhotoGrouperAppProps {
+interface PhotoCollageAppProps {
   workflow?: WorkflowConfig;
 }
 
-export default function PhotoGrouperApp({ workflow = DEFAULT_WORKFLOW }: PhotoGrouperAppProps) {
+export default function PhotoCollageApp({ workflow = DEFAULT_WORKFLOW }: PhotoCollageAppProps) {
   const maxPhotos = workflow.photoCount ?? MAX_PHOTOS;
   const [phase, setPhase] = useState<AppPhase>('home');
 
@@ -488,7 +489,7 @@ export default function PhotoGrouperApp({ workflow = DEFAULT_WORKFLOW }: PhotoGr
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600">Export complete</p>
                 <h2 id="export-feedback-title" className="mt-1 text-2xl font-semibold tracking-tight">What did you create?</h2>
-                <p className="mt-1 text-sm text-slate-500">One tap helps improve Photo Grouper. No image data is collected.</p>
+                <p className="mt-1 text-sm text-slate-500">One tap helps improve {APP_NAME}. No image data is collected.</p>
               </div>
               <button
                 onClick={handleCloseExportFeedback}

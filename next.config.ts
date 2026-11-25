@@ -11,8 +11,15 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig: NextConfig = {
+  agentRules: false,
+  cacheComponents: true,
+  partialPrefetching: true,
   poweredByHeader: false,
+  reactCompiler: true,
   turbopack: {},
+  experimental: {
+    optimizePackageImports: ["lucide-react"],
+  },
   async headers() {
     return [
       {

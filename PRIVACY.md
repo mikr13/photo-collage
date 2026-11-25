@@ -1,8 +1,8 @@
 # Privacy Policy
 
-**Effective date:** June 15, 2026
+**Effective date:** November 25, 2026
 
-Photo Grouper is built privacy-first. This policy explains, in plain language, what happens to your data when you use the app at [photogrouper.com](https://photogrouper.com).
+Photo Collage is built privacy-first. This policy explains, in plain language, what happens to your data when you use the app at [photo-collage.mikr13.com](https://photo-collage.mikr13.com).
 
 ## The short version
 
@@ -16,12 +16,12 @@ Photo Grouper is built privacy-first. This policy explains, in plain language, w
 When you add photos, they are read directly by your browser and held only in your device's memory for the current session. They are:
 
 - **Processed entirely on-device** — compression, editing, filters, layout, and final export all run as client-side JavaScript using the HTML Canvas API.
-- **Never transmitted** — no photo, thumbnail, or derived image is sent to Photo Grouper, our host, or any third party.
+- **Never transmitted** — no photo, thumbnail, or derived image is sent to Photo Collage, our host, or any third party.
 - **Not persisted** — photos are not saved to a server or to long-term browser storage. Closing or reloading the tab discards them.
 
 ## What we collect
 
-On the **official hosted site** ([photogrouper.com](https://photogrouper.com)):
+On the hosted site ([photo-collage.mikr13.com](https://photo-collage.mikr13.com)):
 
 - **Vercel Web Analytics** — anonymous, aggregated usage data such as page views and general device, browser, and country-level information. It does not use tracking cookies, does not follow you across other sites, does not collect your photos, and does not identify you personally. See [Vercel's analytics privacy documentation](https://vercel.com/docs/analytics/privacy-policy).
 - **Standard server logs** — our hosting provider (Vercel) processes routine request metadata (such as IP address and browser user-agent) for the sole purpose of delivering the web page to you, as happens with essentially any website.
@@ -35,7 +35,7 @@ On the **official hosted site** ([photogrouper.com](https://photogrouper.com)):
 
 ## Cookies & local storage
 
-Photo Grouper does not use tracking or advertising cookies. As a Progressive Web App, it uses a service worker to cache the application's own code and assets so it can work offline — this cache contains app files, **not** your photos.
+Photo Collage does not use tracking or advertising cookies. As a Progressive Web App, it uses a service worker to cache the application's own code and assets so it can work offline — this cache contains app files, **not** your photos.
 
 ## Fonts & third parties
 
@@ -44,11 +44,11 @@ Photo Grouper does not use tracking or advertising cookies. As a Progressive Web
 
 ## Self-hosted and forked versions
 
-Photo Grouper is open source, and anyone can run their own copy. In self-hosted or forked deployments, analytics is **disabled by default** and only runs if the operator explicitly opts in. If you use a copy hosted by someone else, their data practices — not this policy — apply.
+Photo Collage is open source, and anyone can run their own copy. In self-hosted or forked deployments, analytics is **disabled by default** and only runs if the operator explicitly opts in. If you use a copy hosted by someone else, their data practices — not this policy — apply.
 
 ## Children's privacy
 
-Photo Grouper does not knowingly collect personal information from anyone, including children, because it does not collect personal information at all.
+Photo Collage does not knowingly collect personal information from anyone, including children, because it does not collect personal information at all.
 
 ## Changes to this policy
 
@@ -56,4 +56,4 @@ If this policy changes, the updated version will be posted here with a revised e
 
 ## Contact
 
-Questions about privacy? Open an issue on [GitHub](https://github.com/namabeeru/photo-grouper/issues).
+Questions about privacy should be directed to the operator of this deployment.

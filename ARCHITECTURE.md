@@ -1,4 +1,4 @@
-# Photo Grouper - Architecture
+# Photo Collage - Architecture
 
 > **AI AGENT INSTRUCTION**: You must read this file before starting any major refactor. If you change the tech stack or add a new major feature, you MUST update this file to reflect the new state of the project.
 
@@ -6,7 +6,7 @@
 
 ## Project Overview
 
-**Photo Grouper** is a privacy-first photo collage maker web application. It allows users to create beautiful photo collages without uploading photos to any server. All image processing happens locally in the browser.
+**Photo Collage** is a privacy-first photo collage maker web application. It allows users to create beautiful photo collages without uploading photos to any server. All image processing happens locally in the browser.
 
 ### Core Philosophy
 - **Privacy-First**: Photos never leave the user's device
@@ -33,7 +33,7 @@
 ## Project Structure
 
 ```
-photo-grouper/
+photo-collage/
 ├── app/                    # Next.js App Router
 │   ├── layout.tsx          # Root layout with metadata & fonts
 │   ├── page.tsx            # Main page component (state machine)
@@ -186,10 +186,10 @@ on desktop so the canvas and controls remain visible together.
 ## Development Commands
 
 ```bash
-npm run dev     # Start dev server (Turbopack)
-npm run build   # Production build (webpack, required for service-worker generation)
-npm run start   # Start production server
-npm run lint    # Run ESLint
+pnpm dev     # Start dev server (Turbopack)
+pnpm build   # Production build (webpack, required for service-worker generation)
+pnpm start   # Start production server
+pnpm lint    # Run ESLint
 ```
 
 ---
@@ -198,7 +198,7 @@ npm run lint    # Run ESLint
 
 - Designed for static/edge deployment
 - Recommended platform: **Vercel**
-- Live instance: **[photogrouper.com](https://photogrouper.com)**
+- Live instance: **[photo-collage.mikr13.com](https://photo-collage.mikr13.com)**
 - No server-side data storage or API routes
 
 ---

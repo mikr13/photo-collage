@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SITE_URL } from "@/utils/site";
+import { APP_NAME } from "@/utils/brand";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,12 +29,12 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Photo Grouper — Free Private Photo Collage Maker (No Upload)",
-    template: "%s — Photo Grouper",
+    default: `${APP_NAME} — Free Private Collage Maker`,
+    template: `%s — ${APP_NAME}`,
   },
   description:
     "Create beautiful photo collages with privacy-first design. Your photos stay on your device — zero cloud uploads, ever. Free, no account, works offline.",
-  applicationName: "Photo Grouper",
+  applicationName: APP_NAME,
   manifest: "/site.webmanifest",
   keywords: [
     "photo collage",
@@ -42,12 +43,12 @@ export const metadata: Metadata = {
     "private collage maker",
     "no upload collage maker",
     "offline collage maker",
-    "photo grouper",
+    "collage editor",
     "privacy",
     "photo editor",
   ],
-  authors: [{ name: "Photo Grouper" }],
-  creator: "Photo Grouper",
+  authors: [{ name: APP_NAME }],
+  creator: APP_NAME,
   alternates: {
     canonical: "/",
   },
@@ -55,8 +56,8 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: SITE_URL,
-    siteName: "Photo Grouper",
-    title: "Photo Grouper — Create Beautiful Photo Collages, Privately",
+    siteName: APP_NAME,
+    title: `${APP_NAME} — Create Beautiful Photo Collages, Privately`,
     description:
       "Create stunning photo collages with complete privacy. Your photos never leave your device. Free, no account, works offline.",
     images: [
@@ -64,13 +65,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Photo Grouper - Privacy-first photo collage maker",
+        alt: `${APP_NAME} - Privacy-first photo collage maker`,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Photo Grouper — Create Beautiful Photo Collages, Privately",
+    title: `${APP_NAME} — Create Beautiful Photo Collages, Privately`,
     description:
       "Create stunning photo collages with complete privacy. Your photos never leave your device.",
     images: ["/og-image.png"],
@@ -78,7 +79,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Photo Grouper",
+    title: APP_NAME,
   },
   icons: {
     icon: [
@@ -92,7 +93,7 @@ export const metadata: Metadata = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  name: "Photo Grouper",
+  name: APP_NAME,
   url: SITE_URL,
   applicationCategory: "MultimediaApplication",
   operatingSystem: "Any (web browser)",

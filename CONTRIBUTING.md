@@ -1,6 +1,6 @@
-# Contributing to Photo Grouper
+# Contributing to Photo Collage
 
-Thanks for your interest in contributing! Photo Grouper is a privacy-first, client-side photo collage maker, and contributions of all sizes are welcome — bug reports, new collage templates, filters, accessibility improvements, and docs.
+Thanks for your interest in contributing! Photo Collage is a privacy-first, client-side photo collage maker, and contributions of all sizes are welcome — bug reports, new collage templates, filters, accessibility improvements, and docs.
 
 ## Core Principles
 
@@ -14,30 +14,30 @@ Any contribution should preserve the project's two non-negotiables:
 Requires **Node.js 20+**.
 
 ```bash
-git clone https://github.com/namabeeru/photo-grouper.git
-cd photo-grouper
-npm install
-npm run dev
+git clone <your-repository-url>
+cd photo-collage
+pnpm install
+pnpm dev
 ```
 
 Before opening a pull request, make sure the project builds and lints cleanly:
 
 ```bash
-npm run lint
-npm run build
+pnpm lint
+pnpm build
 ```
 
 ## Workflow
 
 1. Fork the repository and create a feature branch: `git checkout -b feat/my-change`.
 2. Make your change in small, focused commits.
-3. Run `npm run lint` and `npm run build`.
+3. Run `pnpm lint` and `pnpm build`.
 4. Open a pull request against `main` with a clear description of what changed and why.
 
 ## Code Style
 
 - TypeScript throughout; keep types explicit at module boundaries.
-- Follow the existing ESLint config (`npm run lint`).
+- Follow the existing ESLint config (`pnpm lint`).
 - Match the conventions of the surrounding code — naming, file structure, and comment density.
 
 ## Adding a Collage Template

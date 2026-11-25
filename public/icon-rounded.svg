@@ -1,26 +1,14 @@
-
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="PhotoGrouper">
-  <title>PhotoGrouper</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Photo Collage">
+  <title>Photo Collage</title>
   <defs>
-    <linearGradient id="pg-bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#4338CA"></stop>
-      <stop offset="1" stop-color="#7C3AED"></stop>
-    </linearGradient>
-    <linearGradient id="pg-tile-indigo" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#A5B4FC"></stop>
-      <stop offset="1" stop-color="#818CF8"></stop>
+    <linearGradient id="collage-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#0F766E"/>
     </linearGradient>
   </defs>
-  
-  <rect width="512" height="512" rx="115" fill="url(#pg-bg)"></rect>
-  
-  <g transform="translate(76 76) scale(1.8)">
-    <rect x="34" y="34" width="60" height="60" rx="12" fill="url(#pg-tile-indigo)"></rect>
-    <rect x="34" y="106" width="60" height="60" rx="12" fill="#C4B5FD"></rect>
-    <rect x="106" y="106" width="60" height="60" rx="12" fill="#E0E7FF"></rect>
-    <g transform="translate(136 60) rotate(8) translate(-30 -30)">
-      <rect width="60" height="60" rx="12" fill="#FFFFFF"></rect>
-      <circle cx="20" cy="20" r="5" fill="#7C3AED" opacity="0.7"></circle>
-    </g>
-  </g>
+  <rect width="512" height="512" rx="116" fill="url(#collage-bg)"/>
+  <rect x="82" y="112" width="270" height="226" rx="34" fill="none" stroke="#FFFFFF" stroke-width="24" opacity="0.45"/>
+  <rect x="150" y="176" width="280" height="234" rx="36" fill="#F8FAFC"/>
+  <circle cx="353" cy="245" r="30" fill="#2DD4BF"/>
+  <path d="M181 367l70-82 51 54 38-43 59 71H181z" fill="#1D4ED8"/>
 </svg>
