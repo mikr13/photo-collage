@@ -6,7 +6,7 @@ import {
     ArrowLeft, Download, Loader2, RotateCcw, Repeat2,
     LayoutGrid, Sliders, Wand2, Palette, Crop,
     RotateCw, ZoomIn, ZoomOut, ArrowUp, ArrowDown, ArrowLeftIcon, ArrowRightIcon,
-    Check, X, Hand,
+    Check, X, Hand, ChevronDown, ChevronUp,
 } from 'lucide-react';
 import { CollageTemplate, SlotPosition } from '@/utils/templates';
 import {
@@ -84,6 +84,7 @@ export default function CollageEditor({
     onCancel,
 }: CollageEditorProps) {
     const [tab, setTab] = useState<Tab>('layouts');
+    const [toolsCollapsed, setToolsCollapsed] = useState(false);
     // Slot currently "armed" to be swapped. Tapping another slot swaps them.
     const [swapSource, setSwapSource] = useState<string | null>(null);
     const previewRef = useRef<HTMLDivElement>(null);
@@ -247,49 +248,70 @@ export default function CollageEditor({
                     </p>
                 </section>
 
-                <aside className="flex shrink-0 flex-col border-t border-slate-700 bg-slate-900 md:w-[27rem] md:border-l md:border-t-0" aria-label="Editing tools">
-                    <div className="flex shrink-0 border-b border-slate-700" role="tablist" aria-label="Editing tools" onKeyDown={handleTabKeyDown}>
-                        <TabButton tabId="layouts" active={tab === 'layouts'} onClick={() => setTab('layouts')} icon={<LayoutGrid className="h-5 w-5" />} label="Layouts" />
-                        <TabButton tabId="adjust" active={tab === 'adjust'} onClick={() => setTab('adjust')} icon={<Sliders className="h-5 w-5" />} label="Adjust" />
-                        <TabButton tabId="filters" active={tab === 'filters'} onClick={() => setTab('filters')} icon={<Wand2 className="h-5 w-5" />} label="Filters" />
-                        <TabButton tabId="format" active={tab === 'format'} onClick={() => setTab('format')} icon={<Crop className="h-5 w-5" />} label="Format" />
-                        <TabButton tabId="style" active={tab === 'style'} onClick={() => setTab('style')} icon={<Palette className="h-5 w-5" />} label="Style" />
-                    </div>
+                <aside className="flex shrink-0 flex-col border-t border-slate-700 bg-slate-900 pb-[env(safe-area-inset-bottom)] md:w-[27rem] md:border-l md:border-t-0 md:pb-0" aria-label="Editing tools">
+                    <button
+                        type="button"
+                        onClick={() => setToolsCollapsed((collapsed) => !collapsed)}
+                        className="flex min-h-12 w-full items-center justify-between gap-3 px-4 text-left text-sm font-semibold text-white transition-colors hover:bg-white/5 md:hidden"
+                        aria-expanded={!toolsCollapsed}
+                        aria-controls="editor-tools-content"
+                    >
+                        <span className="flex items-center gap-2">
+                            <Sliders className="h-4 w-4 text-blue-400" />
+                            Editing tools
+                        </span>
+                        <span className="flex items-center gap-1.5 text-xs font-medium text-slate-400">
+                            {toolsCollapsed ? 'Show' : 'Hide'}
+                            {toolsCollapsed
+                                ? <ChevronUp className="h-4 w-4" aria-hidden="true" />
+                                : <ChevronDown className="h-4 w-4" aria-hidden="true" />}
+                        </span>
+                    </button>
 
-                    <div id="editor-tool-panel" role="tabpanel" aria-labelledby={`editor-tab-${tab}`} className="max-h-[40vh] overflow-y-auto md:max-h-none md:flex-1">
-                        {tab === 'layouts' && (
-                            <LayoutsTab templates={availableTemplates} selectedTemplate={selectedTemplate} onTemplateSelect={handleTemplateSelect} />
-                        )}
-                        {tab === 'adjust' && (
-                            <AdjustTab
-                                selectedSlot={selectedSlot}
-                                edits={activeEdits}
-                                onUpdate={(updates) => selectedSlot && onUpdateSlotEdits(selectedSlot, updates)}
-                                onReset={() => selectedSlot && onResetSlotEdits(selectedSlot)}
-                                onArmSwap={armSwapFromButton}
-                                onApplyFitAll={(fitMode) => onApplyEditToAll({ fitMode, scale: 1, offsetX: 0, offsetY: 0 })}
-                            />
-                        )}
-                        {tab === 'filters' && (
-                            <FiltersTab
-                                selectedSlot={selectedSlot}
-                                selectedPhoto={selectedSlot ? photos[photoAssignments.get(selectedSlot) ?? -1] ?? null : null}
-                                currentFilter={activeEdits.filter}
-                                onPick={(filter) => selectedSlot && onUpdateSlotEdits(selectedSlot, { filter })}
-                                onApplyAll={(filter) => onApplyEditToAll({ filter })}
-                            />
-                        )}
-                        {tab === 'format' && (
-                            <FormatTab
-                                activeRatio={outputAspectRatio}
-                                onSelect={onSetAspectRatio}
-                                exportOptions={exportOptions}
-                                onUpdateExportOptions={onUpdateExportOptions}
-                                comparisonLabels={comparisonLabels}
-                                onUpdateComparisonLabels={onUpdateComparisonLabels}
-                            />
-                        )}
-                        {tab === 'style' && <StyleTab style={collageStyle} onUpdate={onUpdateStyle} />}
+                    <div id="editor-tools-content" className={`${toolsCollapsed ? 'hidden' : 'flex'} min-h-0 flex-col md:flex md:flex-1`}>
+                        <div className="flex shrink-0 border-y border-slate-700 md:border-t-0" role="tablist" aria-label="Editing tools" onKeyDown={handleTabKeyDown}>
+                            <TabButton tabId="layouts" active={tab === 'layouts'} onClick={() => setTab('layouts')} icon={<LayoutGrid className="h-5 w-5" />} label="Layouts" />
+                            <TabButton tabId="adjust" active={tab === 'adjust'} onClick={() => setTab('adjust')} icon={<Sliders className="h-5 w-5" />} label="Adjust" />
+                            <TabButton tabId="filters" active={tab === 'filters'} onClick={() => setTab('filters')} icon={<Wand2 className="h-5 w-5" />} label="Filters" />
+                            <TabButton tabId="format" active={tab === 'format'} onClick={() => setTab('format')} icon={<Crop className="h-5 w-5" />} label="Format" />
+                            <TabButton tabId="style" active={tab === 'style'} onClick={() => setTab('style')} icon={<Palette className="h-5 w-5" />} label="Style" />
+                        </div>
+
+                        <div id="editor-tool-panel" role="tabpanel" aria-labelledby={`editor-tab-${tab}`} className="max-h-[40dvh] overflow-y-auto md:max-h-none md:flex-1">
+                            {tab === 'layouts' && (
+                                <LayoutsTab templates={availableTemplates} selectedTemplate={selectedTemplate} onTemplateSelect={handleTemplateSelect} />
+                            )}
+                            {tab === 'adjust' && (
+                                <AdjustTab
+                                    selectedSlot={selectedSlot}
+                                    edits={activeEdits}
+                                    onUpdate={(updates) => selectedSlot && onUpdateSlotEdits(selectedSlot, updates)}
+                                    onReset={() => selectedSlot && onResetSlotEdits(selectedSlot)}
+                                    onArmSwap={armSwapFromButton}
+                                    onApplyFitAll={(fitMode) => onApplyEditToAll({ fitMode, scale: 1, offsetX: 0, offsetY: 0 })}
+                                />
+                            )}
+                            {tab === 'filters' && (
+                                <FiltersTab
+                                    selectedSlot={selectedSlot}
+                                    selectedPhoto={selectedSlot ? photos[photoAssignments.get(selectedSlot) ?? -1] ?? null : null}
+                                    currentFilter={activeEdits.filter}
+                                    onPick={(filter) => selectedSlot && onUpdateSlotEdits(selectedSlot, { filter })}
+                                    onApplyAll={(filter) => onApplyEditToAll({ filter })}
+                                />
+                            )}
+                            {tab === 'format' && (
+                                <FormatTab
+                                    activeRatio={outputAspectRatio}
+                                    onSelect={onSetAspectRatio}
+                                    exportOptions={exportOptions}
+                                    onUpdateExportOptions={onUpdateExportOptions}
+                                    comparisonLabels={comparisonLabels}
+                                    onUpdateComparisonLabels={onUpdateComparisonLabels}
+                                />
+                            )}
+                            {tab === 'style' && <StyleTab style={collageStyle} onUpdate={onUpdateStyle} />}
+                        </div>
                     </div>
                 </aside>
             </div>
