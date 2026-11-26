@@ -6,7 +6,7 @@ import {
     ArrowLeft, Download, Loader2, RotateCcw, Repeat2,
     LayoutGrid, Sliders, Wand2, Palette, Crop,
     RotateCw, ZoomIn, ZoomOut, ArrowUp, ArrowDown, ArrowLeftIcon, ArrowRightIcon,
-    Check, X, Hand, ChevronDown, ChevronUp,
+    Check, X, Hand, ChevronDown, ChevronUp, PanelRightClose, PanelRightOpen,
 } from 'lucide-react';
 import { CollageTemplate, SlotPosition } from '@/utils/templates';
 import {
@@ -27,6 +27,7 @@ import {
 
 import { PhotoData } from '@/types/photo';
 import type { ComparisonLabels, ExportOptions } from '@/utils/collageGenerator';
+import ThemeToggle from '@/components/ThemeToggle';
 
 interface CollageEditorProps {
     photos: PhotoData[];
@@ -163,29 +164,32 @@ export default function CollageEditor({
     };
 
     return (
-        <div className="flex h-dvh flex-col overflow-hidden bg-slate-950 text-white">
-            <header className="flex shrink-0 items-center justify-between border-b border-slate-700/80 bg-slate-900/90 px-4 py-3 backdrop-blur-xl">
+        <div className="editor-shell flex h-dvh flex-col overflow-hidden bg-slate-100 text-slate-950 transition-colors dark:bg-slate-950 dark:text-white">
+            <header className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur-xl dark:border-slate-700/80 dark:bg-slate-900/90">
                 <button
                     onClick={onCancel}
-                    className="-ml-1 flex min-h-10 items-center gap-2 rounded-full px-2 text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
+                    className="-ml-1 flex min-h-10 items-center gap-2 rounded-full px-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white"
                 >
                     <ArrowLeft className="h-5 w-5" />
                     <span className="text-sm">Photos</span>
                 </button>
 
                 <div className="hidden text-center sm:block">
-                    <p className="text-sm font-semibold text-white">Edit collage</p>
-                    <p className="text-[11px] text-slate-500">{photos.length} photos · {availableTemplates.length} layouts</p>
+                    <p className="text-sm font-semibold text-slate-950 dark:text-white">Edit collage</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">{photos.length} photos · {availableTemplates.length} layouts</p>
                 </div>
 
-                <button
-                    onClick={onSave}
-                    disabled={isSaving}
-                    className="flex min-h-10 items-center gap-2 rounded-full bg-blue-500 px-5 font-medium text-white transition hover:bg-blue-400 disabled:opacity-50"
-                >
-                    {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                    <span>{isSaving ? 'Saving...' : 'Save'}</span>
-                </button>
+                <div className="flex items-center gap-2">
+                    <ThemeToggle />
+                    <button
+                        onClick={onSave}
+                        disabled={isSaving}
+                        className="flex min-h-10 items-center gap-2 rounded-full bg-blue-500 px-4 font-medium text-white transition hover:bg-blue-400 disabled:opacity-50 sm:px-5"
+                    >
+                        {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                        <span>{isSaving ? 'Saving...' : 'Save'}</span>
+                    </button>
+                </div>
             </header>
 
             {swapSource && (
@@ -199,10 +203,10 @@ export default function CollageEditor({
             )}
 
             <div className="flex min-h-0 flex-1 flex-col md:flex-row">
-                <section className="flex min-h-0 flex-1 flex-col items-center justify-start overflow-auto p-4 sm:p-6 md:justify-center" aria-label="Collage preview">
+                <section className="flex min-h-0 flex-1 flex-col items-center justify-start overflow-auto bg-slate-100 p-4 sm:p-6 md:justify-center dark:bg-slate-950" aria-label="Collage preview">
                     <div
                         ref={previewRef}
-                        className="relative w-full max-w-md shrink-0 overflow-hidden shadow-2xl shadow-black/30 ring-1 ring-white/10"
+                        className="relative w-full max-w-md shrink-0 overflow-hidden shadow-2xl shadow-black/20 ring-1 ring-black/10 dark:shadow-black/30 dark:ring-white/10"
                         style={{
                             aspectRatio,
                             background: collageStyle.background,
@@ -242,34 +246,39 @@ export default function CollageEditor({
                         </div>
                     </div>
 
-                    <p className="mt-3 flex items-center gap-1.5 px-4 text-center text-[11px] text-slate-500">
+                    <p className="mt-3 flex items-center gap-1.5 px-4 text-center text-[11px] text-slate-500 dark:text-slate-400">
                         <Hand className="h-3.5 w-3.5 shrink-0" />
-                        Tap to select · Drag to move · Pinch to zoom · Hold to swap
+                        <span className="md:hidden">Tap to select · Drag to move · Pinch to zoom · Hold to swap</span>
+                        <span className="hidden md:inline">Click to select · Drag to move · Scroll or pinch to zoom · Right-click to swap</span>
                     </p>
                 </section>
 
-                <aside className="flex shrink-0 flex-col border-t border-slate-700 bg-slate-900 pb-[env(safe-area-inset-bottom)] md:w-[27rem] md:border-l md:border-t-0 md:pb-0" aria-label="Editing tools">
+                <aside className={`flex shrink-0 flex-col border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] transition-[width] duration-200 dark:border-slate-700 dark:bg-slate-900 md:border-l md:border-t-0 md:pb-0 ${toolsCollapsed ? 'md:w-14' : 'md:w-[27rem]'}`} aria-label="Editing tools">
                     <button
                         type="button"
                         onClick={() => setToolsCollapsed((collapsed) => !collapsed)}
-                        className="flex min-h-12 w-full items-center justify-between gap-3 px-4 text-left text-sm font-semibold text-white transition-colors hover:bg-white/5 md:hidden"
+                        className={`flex min-h-12 w-full items-center justify-between gap-3 px-4 text-left text-sm font-semibold text-slate-900 transition-colors hover:bg-slate-100 dark:text-white dark:hover:bg-white/5 ${toolsCollapsed ? 'md:justify-center md:px-0' : ''}`}
                         aria-expanded={!toolsCollapsed}
                         aria-controls="editor-tools-content"
+                        aria-label={`Editing tools: ${toolsCollapsed ? 'Show' : 'Hide'}`}
                     >
-                        <span className="flex items-center gap-2">
+                        <span className={`items-center gap-2 ${toolsCollapsed ? 'flex md:hidden' : 'flex'}`}>
                             <Sliders className="h-4 w-4 text-blue-400" />
                             Editing tools
                         </span>
-                        <span className="flex items-center gap-1.5 text-xs font-medium text-slate-400">
-                            {toolsCollapsed ? 'Show' : 'Hide'}
+                        <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+                            <span className={toolsCollapsed ? 'md:hidden' : ''}>{toolsCollapsed ? 'Show' : 'Hide'}</span>
                             {toolsCollapsed
-                                ? <ChevronUp className="h-4 w-4" aria-hidden="true" />
-                                : <ChevronDown className="h-4 w-4" aria-hidden="true" />}
+                                ? <ChevronUp className="h-4 w-4 md:hidden" aria-hidden="true" />
+                                : <ChevronDown className="h-4 w-4 md:hidden" aria-hidden="true" />}
+                            {toolsCollapsed
+                                ? <PanelRightOpen className="hidden h-4 w-4 md:block" aria-hidden="true" />
+                                : <PanelRightClose className="hidden h-4 w-4 md:block" aria-hidden="true" />}
                         </span>
                     </button>
 
-                    <div id="editor-tools-content" className={`${toolsCollapsed ? 'hidden' : 'flex'} min-h-0 flex-col md:flex md:flex-1`}>
-                        <div className="flex shrink-0 border-y border-slate-700 md:border-t-0" role="tablist" aria-label="Editing tools" onKeyDown={handleTabKeyDown}>
+                    <div id="editor-tools-content" className={`${toolsCollapsed ? 'hidden' : 'flex'} min-h-0 flex-col md:flex-1`}>
+                        <div className="flex shrink-0 border-y border-slate-200 dark:border-slate-700 md:border-t-0" role="tablist" aria-label="Editing tools" onKeyDown={handleTabKeyDown}>
                             <TabButton tabId="layouts" active={tab === 'layouts'} onClick={() => setTab('layouts')} icon={<LayoutGrid className="h-5 w-5" />} label="Layouts" />
                             <TabButton tabId="adjust" active={tab === 'adjust'} onClick={() => setTab('adjust')} icon={<Sliders className="h-5 w-5" />} label="Adjust" />
                             <TabButton tabId="filters" active={tab === 'filters'} onClick={() => setTab('filters')} icon={<Wand2 className="h-5 w-5" />} label="Filters" />
@@ -435,6 +444,11 @@ const EditableSlot = React.memo(function EditableSlot({
 
         if (ptrs.size === 1) {
             gestureRef.current = { mode: null, moved: false, longPressed: false, startX: e.clientX, startY: e.clientY, timer: null };
+            if (photo && e.pointerType === 'mouse' && e.button === 2) {
+                gestureRef.current.longPressed = true;
+                onLongPress(slotId);
+                return;
+            }
             if (photo) {
                 gestureRef.current.timer = window.setTimeout(() => {
                     if (!gestureRef.current.moved && pointersRef.current.size === 1) {
@@ -523,6 +537,20 @@ const EditableSlot = React.memo(function EditableSlot({
         }
     };
 
+    const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
+        if (!photo) return;
+        event.preventDefault();
+        const current = editsRef.current;
+        const nextScale = Math.max(1, Math.min(3, current.scale * Math.exp(-event.deltaY * 0.002)));
+        if (Math.abs(nextScale - current.scale) < 0.001) return;
+        const offsets = getPannedOffsets(current, 0, 0, nextScale);
+        commitEditsChange(offsets ? { scale: nextScale, ...offsets } : { scale: nextScale });
+    };
+
+    const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
+        event.preventDefault();
+    };
+
     const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
         if (e.key !== 'Enter' && e.key !== ' ') return;
         e.preventDefault();
@@ -570,8 +598,9 @@ const EditableSlot = React.memo(function EditableSlot({
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerEnd}
                 onPointerCancel={handlePointerEnd}
+                onWheel={handleWheel}
                 onKeyDown={handleKeyDown}
-                onContextMenu={(ev) => ev.preventDefault()}
+                onContextMenu={handleContextMenu}
                 className={`relative w-full h-full overflow-hidden bg-slate-200 transition-all select-none cursor-pointer
                     ${isSelected ? 'ring-4 ring-blue-500' : ''}
                     ${isSwapSource ? 'ring-4 ring-amber-400' : ''}
@@ -659,7 +688,7 @@ function TabButton({ tabId, active, onClick, icon, label }: {
             aria-controls="editor-tool-panel"
             tabIndex={active ? 0 : -1}
             className={`flex-1 flex flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-medium transition-colors
-                ${active ? 'text-blue-400 border-b-2 border-blue-500 bg-slate-700/40' : 'text-slate-400 hover:text-slate-200'}`}
+                ${active ? 'border-b-2 border-blue-500 bg-blue-500/10 text-blue-600 dark:bg-slate-700/40 dark:text-blue-400' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'}`}
         >
             {icon}
             <span>{label}</span>
@@ -676,7 +705,7 @@ function LayoutsTab({
 }) {
     return (
         <div className="px-4 py-3">
-            <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">{templates.length} Layouts</p>
+            <p className="mb-2 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">{templates.length} Layouts</p>
             <div className="grid grid-cols-4 gap-3">
                 {templates.map((template) => {
                     const isSelected = template.id === selectedTemplate.id;
@@ -689,15 +718,15 @@ function LayoutsTab({
                             className={`relative aspect-square rounded-xl overflow-hidden transition-all duration-150
                                 ${isSelected
                                     ? 'ring-2 ring-blue-500 bg-blue-500/20'
-                                    : 'bg-slate-700 hover:bg-slate-600 opacity-80 hover:opacity-100'
+                                    : 'bg-slate-200 opacity-80 hover:bg-slate-300 hover:opacity-100 dark:bg-slate-700 dark:hover:bg-slate-600'
                                 }`}
                             title={template.name}
                         >
-                            <div className="absolute inset-2 bg-slate-600/60 rounded-md">
+                            <div className="absolute inset-2 rounded-md bg-slate-400/60 dark:bg-slate-600/60">
                                 {template.slots.map((s) => (
                                     <div
                                         key={s.id}
-                                        className={`absolute rounded-[2px] ${isSelected ? 'bg-blue-400' : 'bg-slate-400'}`}
+                                        className={`absolute rounded-[2px] ${isSelected ? 'bg-blue-400' : 'bg-slate-500 dark:bg-slate-400'}`}
                                         style={{
                                             left: `${s.x}%`,
                                             top: `${s.y}%`,
@@ -727,7 +756,7 @@ function AdjustTab({
 }) {
     if (!selectedSlot) {
         return (
-            <div className="px-4 py-8 text-center text-slate-400 text-sm">
+            <div className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
                 Tap a photo above to start editing.
             </div>
         );
@@ -741,7 +770,7 @@ function AdjustTab({
         <div className="px-4 py-3 space-y-4">
             <div>
                 <div className="mb-2 flex items-center justify-between">
-                    <p className="text-xs uppercase tracking-wide text-slate-400">Photo fit</p>
+                    <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Photo fit</p>
                     <button
                         onClick={() => onApplyFitAll(edits.fitMode)}
                         className="text-xs font-medium text-blue-400 hover:text-blue-300"
@@ -749,7 +778,7 @@ function AdjustTab({
                         Apply to all
                     </button>
                 </div>
-                <div className="grid grid-cols-2 rounded-xl bg-slate-800 p-1" role="group" aria-label="Photo fit">
+                <div className="grid grid-cols-2 rounded-xl bg-slate-100 p-1 dark:bg-slate-800" role="group" aria-label="Photo fit">
                     {([
                         { id: 'cover' as const, label: 'Fill', detail: 'Fill the frame' },
                         { id: 'contain' as const, label: 'Fit', detail: 'Show full photo' },
@@ -758,7 +787,7 @@ function AdjustTab({
                             key={option.id}
                             onClick={() => onUpdate({ fitMode: option.id, scale: 1, offsetX: 0, offsetY: 0 })}
                             aria-pressed={edits.fitMode === option.id}
-                            className={`rounded-lg px-3 py-2 text-left transition ${edits.fitMode === option.id ? 'bg-slate-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                            className={`rounded-lg px-3 py-2 text-left transition ${edits.fitMode === option.id ? 'bg-white text-slate-950 shadow-sm dark:bg-slate-600 dark:text-white' : 'text-slate-500 hover:text-slate-950 dark:text-slate-400 dark:hover:text-white'}`}
                         >
                             <span className="block text-sm font-semibold">{option.label}</span>
                             <span className="block text-[10px]">{option.detail}</span>
@@ -795,7 +824,7 @@ function AdjustTab({
                 </button>
                 <button
                     onClick={onReset}
-                    className="flex-1 py-2.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-sm font-medium flex items-center justify-center gap-2"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-slate-200 py-2.5 text-sm font-medium hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600"
                 >
                     <RotateCcw className="w-4 h-4" />
                     Reset
@@ -809,7 +838,7 @@ function QuickButton({ onClick, icon, label }: { onClick: () => void; icon: Reac
     return (
         <button
             onClick={onClick}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-slate-700 hover:bg-slate-600 active:bg-slate-500 text-xs"
+            className="flex items-center gap-1.5 rounded-full bg-slate-200 px-3 py-2 text-xs hover:bg-slate-300 active:bg-slate-400 dark:bg-slate-700 dark:hover:bg-slate-600 dark:active:bg-slate-500"
         >
             {icon}
             <span>{label}</span>
@@ -833,8 +862,8 @@ function SliderRow({
     return (
         <div>
             <div className="flex justify-between items-baseline mb-1">
-                <span className="text-xs text-slate-300">{label}</span>
-                <span className="text-xs text-slate-400 tabular-nums">{display}</span>
+                <span className="text-xs text-slate-700 dark:text-slate-300">{label}</span>
+                <span className="text-xs tabular-nums text-slate-500 dark:text-slate-400">{display}</span>
             </div>
             <input
                 type="range"
@@ -861,7 +890,7 @@ function FiltersTab({
 }) {
     if (!selectedSlot || !selectedPhoto) {
         return (
-            <div className="px-4 py-8 text-center text-slate-400 text-sm">
+            <div className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
                 Tap a photo above to apply a filter.
             </div>
         );
@@ -870,7 +899,7 @@ function FiltersTab({
     return (
         <div className="px-4 py-3">
             <div className="flex items-center justify-between gap-3 mb-3">
-                <p className="text-xs text-slate-400 uppercase tracking-wide">Filters</p>
+                <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Filters</p>
                 <button
                     onClick={() => onApplyAll(currentFilter)}
                     className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold shadow-sm transition-colors"
@@ -890,13 +919,13 @@ function FiltersTab({
                             aria-pressed={isSelected}
                             className={`group flex flex-col items-center gap-1 transition-transform ${isSelected ? 'scale-[1.04]' : ''}`}
                         >
-                            <div className={`relative w-full aspect-square rounded-lg overflow-hidden bg-slate-700
-                                ${isSelected ? 'ring-2 ring-blue-500' : 'ring-1 ring-slate-700 group-hover:ring-slate-500'}`}>
+                            <div className={`relative aspect-square w-full overflow-hidden rounded-lg bg-slate-200 dark:bg-slate-700
+                                ${isSelected ? 'ring-2 ring-blue-500' : 'ring-1 ring-slate-300 group-hover:ring-slate-500 dark:ring-slate-700'}`}>
                                 <div className="absolute inset-0" style={{ filter: editsToCssFilter(previewEdits) }}>
                                     <Image src={selectedPhoto.previewUrl} alt="" fill unoptimized className="object-cover" sizes="80px" />
                                 </div>
                             </div>
-                            <span className={`text-[11px] ${isSelected ? 'text-blue-400' : 'text-slate-400'}`}>{opt.label}</span>
+                            <span className={`text-[11px] ${isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'}`}>{opt.label}</span>
                         </button>
                     );
                 })}
@@ -918,7 +947,7 @@ function FormatTab({
     return (
         <div className="space-y-6 px-4 py-3">
             <div>
-                <p className="mb-3 text-xs uppercase tracking-wide text-slate-400">Aspect ratio</p>
+                <p className="mb-3 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Aspect ratio</p>
                 <div className="grid grid-cols-2 gap-2.5">
                     {ASPECT_PRESETS.map((preset) => {
                         const isSelected = (preset.ratio ?? null) === activeRatio ||
@@ -934,17 +963,17 @@ function FormatTab({
                                 className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-all
                                     ${isSelected
                                         ? 'border-blue-500 bg-blue-500/15'
-                                        : 'border-slate-700 bg-slate-700/40 hover:border-slate-500'}`}
+                                        : 'border-slate-300 bg-slate-100 hover:border-slate-500 dark:border-slate-700 dark:bg-slate-700/40'}`}
                             >
                                 <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center">
                                     <span
-                                        className={`block rounded-[3px] ${isSelected ? 'bg-blue-400' : 'bg-slate-400'}`}
+                                        className={`block rounded-[3px] ${isSelected ? 'bg-blue-400' : 'bg-slate-500 dark:bg-slate-400'}`}
                                         style={{ width: boxW, height: boxH }}
                                     />
                                 </span>
                                 <span className="min-w-0">
-                                    <span className={`block text-sm font-semibold ${isSelected ? 'text-blue-300' : 'text-slate-200'}`}>{preset.label}</span>
-                                    <span className="block truncate text-[11px] text-slate-400">{preset.platform}</span>
+                                    <span className={`block text-sm font-semibold ${isSelected ? 'text-blue-600 dark:text-blue-300' : 'text-slate-800 dark:text-slate-200'}`}>{preset.label}</span>
+                                    <span className="block truncate text-[11px] text-slate-500 dark:text-slate-400">{preset.platform}</span>
                                 </span>
                             </button>
                         );
@@ -953,14 +982,14 @@ function FormatTab({
             </div>
 
             <div>
-                <p className="mb-2 text-xs uppercase tracking-wide text-slate-400">Export</p>
+                <p className="mb-2 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Export</p>
                 <div className="grid grid-cols-2 gap-2">
                     {(['jpeg', 'png'] as const).map((format) => (
                         <button
                             key={format}
                             onClick={() => onUpdateExportOptions({ format })}
                             aria-pressed={exportOptions.format === format}
-                            className={`rounded-xl border px-3 py-2.5 text-sm font-semibold uppercase transition ${exportOptions.format === format ? 'border-blue-500 bg-blue-500/15 text-blue-300' : 'border-slate-700 bg-slate-800 text-slate-300 hover:border-slate-500'}`}
+                            className={`rounded-xl border px-3 py-2.5 text-sm font-semibold uppercase transition ${exportOptions.format === format ? 'border-blue-500 bg-blue-500/15 text-blue-600 dark:text-blue-300' : 'border-slate-300 bg-slate-100 text-slate-700 hover:border-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300'}`}
                         >
                             {format === 'jpeg' ? 'JPG' : 'PNG'}
                         </button>
@@ -972,20 +1001,20 @@ function FormatTab({
                             key={width}
                             onClick={() => onUpdateExportOptions({ width })}
                             aria-pressed={exportOptions.width === width}
-                            className={`rounded-xl border px-2 py-2 text-xs font-medium transition ${exportOptions.width === width ? 'border-blue-500 bg-blue-500/15 text-blue-300' : 'border-slate-700 text-slate-400 hover:border-slate-500'}`}
+                            className={`rounded-xl border px-2 py-2 text-xs font-medium transition ${exportOptions.width === width ? 'border-blue-500 bg-blue-500/15 text-blue-600 dark:text-blue-300' : 'border-slate-300 text-slate-500 hover:border-slate-500 dark:border-slate-700 dark:text-slate-400'}`}
                         >
                             {width === 1080 ? '1080 px' : width === 2000 ? '2000 px' : '4K'}
                         </button>
                     ))}
                 </div>
-                <p className="mt-2 text-[11px] leading-4 text-slate-500">Longest edge of the final image. Higher resolutions use more memory.</p>
+                <p className="mt-2 text-[11px] leading-4 text-slate-500 dark:text-slate-400">Longest edge of the final image. Higher resolutions use more memory.</p>
             </div>
 
-            <div className="border-t border-slate-700 pt-5">
+            <div className="border-t border-slate-200 pt-5 dark:border-slate-700">
                 <label className="flex cursor-pointer items-center justify-between gap-4">
                     <span>
-                        <span className="block text-sm font-semibold text-slate-200">Comparison labels</span>
-                        <span className="block text-[11px] text-slate-500">Add labels to the first two photos</span>
+                        <span className="block text-sm font-semibold text-slate-800 dark:text-slate-200">Comparison labels</span>
+                        <span className="block text-[11px] text-slate-500 dark:text-slate-400">Add labels to the first two photos</span>
                     </span>
                     <input
                         type="checkbox"
@@ -996,22 +1025,22 @@ function FormatTab({
                 </label>
                 {comparisonLabels.enabled && (
                     <div className="mt-3 grid grid-cols-2 gap-2">
-                        <label className="text-xs text-slate-400">
+                        <label className="text-xs text-slate-500 dark:text-slate-400">
                             First photo
                             <input
                                 value={comparisonLabels.left}
                                 maxLength={24}
                                 onChange={(event) => onUpdateComparisonLabels({ left: event.target.value })}
-                                className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
+                                className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                             />
                         </label>
-                        <label className="text-xs text-slate-400">
+                        <label className="text-xs text-slate-500 dark:text-slate-400">
                             Second photo
                             <input
                                 value={comparisonLabels.right}
                                 maxLength={24}
                                 onChange={(event) => onUpdateComparisonLabels({ right: event.target.value })}
-                                className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
+                                className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                             />
                         </label>
                     </div>
@@ -1030,7 +1059,7 @@ function StyleTab({
     return (
         <div className="px-4 py-3 space-y-5">
             <div>
-                <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Background</p>
+                <p className="mb-2 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Background</p>
                 <div className="flex gap-2 flex-wrap">
                     {BACKGROUND_PRESETS.map((preset) => {
                         const isSelected = style.background.toLowerCase() === preset.value.toLowerCase();
@@ -1041,7 +1070,7 @@ function StyleTab({
                                 aria-label={`${preset.name} background`}
                                 aria-pressed={isSelected}
                                 className={`relative w-9 h-9 rounded-full border-2 transition-all
-                                    ${isSelected ? 'border-blue-500 scale-110' : 'border-slate-600 hover:border-slate-400'}`}
+                                    ${isSelected ? 'scale-110 border-blue-500' : 'border-slate-300 hover:border-slate-500 dark:border-slate-600 dark:hover:border-slate-400'}`}
                                 style={{ background: preset.value }}
                                 title={preset.name}
                             >
@@ -1051,7 +1080,7 @@ function StyleTab({
                             </button>
                         );
                     })}
-                    <label className="relative w-9 h-9 rounded-full border-2 border-dashed border-slate-500 hover:border-slate-300 flex items-center justify-center cursor-pointer overflow-hidden">
+                    <label className="relative flex h-9 w-9 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-slate-400 hover:border-slate-600 dark:border-slate-500 dark:hover:border-slate-300">
                         <input
                             type="color"
                             aria-label="Custom background color"
@@ -1059,7 +1088,7 @@ function StyleTab({
                             onChange={(e) => onUpdate({ background: e.target.value })}
                             className="absolute inset-0 opacity-0 cursor-pointer"
                         />
-                        <Palette className="w-4 h-4 text-slate-400" />
+                        <Palette className="h-4 w-4 text-slate-500 dark:text-slate-400" />
                     </label>
                 </div>
             </div>
@@ -1070,7 +1099,7 @@ function StyleTab({
 
             <button
                 onClick={() => onUpdate({ background: '#ffffff', gap: 6, cornerRadius: 4, padding: 0 })}
-                className="w-full py-2.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-sm font-medium flex items-center justify-center gap-2"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-200 py-2.5 text-sm font-medium hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600"
             >
                 <X className="w-4 h-4" />
                 Reset style

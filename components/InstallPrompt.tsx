@@ -87,10 +87,10 @@ export default function InstallPrompt({ enabled = true }: { enabled?: boolean })
 
     return (
         <div className="fixed bottom-4 left-4 right-4 z-50 animate-slide-up">
-            <div className="bg-slate-800/95 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-slate-700/50 max-w-md mx-auto">
+            <div className="mx-auto max-w-md rounded-2xl border border-slate-200 bg-white/95 p-4 text-slate-950 shadow-xl backdrop-blur-md dark:border-slate-700/50 dark:bg-slate-800/95 dark:text-white">
                 <button
                     onClick={handleDismiss}
-                    className="absolute top-3 right-3 p-1 text-slate-400 hover:text-white transition-colors"
+                    className="absolute right-3 top-3 p-1 text-slate-400 transition-colors hover:text-slate-950 dark:hover:text-white"
                     aria-label="Dismiss"
                 >
                     <X size={18} />
@@ -102,16 +102,16 @@ export default function InstallPrompt({ enabled = true }: { enabled?: boolean })
                     </div>
 
                     <div className="flex-1 min-w-0">
-                        <h3 className="text-white font-medium text-sm mb-1">
+                        <h3 className="mb-1 text-sm font-medium text-slate-950 dark:text-white">
                             Use {APP_NAME} Offline
                         </h3>
 
                         {isIOS ? (
-                            <p className="text-slate-400 text-xs leading-relaxed">
-                                Tap <Share size={12} className="inline-block mx-0.5 -mt-0.5" /> then <span className="text-slate-300">&quot;Add to Home Screen&quot;</span> to install
+                            <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                                Tap <Share size={12} className="mx-0.5 -mt-0.5 inline-block" /> then <span className="text-slate-700 dark:text-slate-300">&quot;Add to Home Screen&quot;</span> to install
                             </p>
                         ) : (
-                            <p className="text-slate-400 text-xs leading-relaxed">
+                            <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
                                 Install for quick access and offline use
                             </p>
                         )}

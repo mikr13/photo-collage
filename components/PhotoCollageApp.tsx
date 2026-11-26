@@ -483,18 +483,18 @@ export default function PhotoCollageApp({ workflow = DEFAULT_WORKFLOW }: PhotoCo
             aria-modal="true"
             aria-labelledby="export-feedback-title"
             onKeyDown={handleFeedbackKeyDown}
-            className="w-full max-w-md rounded-[1.75rem] bg-white p-6 text-slate-950 shadow-2xl"
+            className="w-full max-w-md rounded-[1.75rem] bg-white p-6 text-slate-950 shadow-2xl dark:bg-slate-900 dark:text-white"
           >
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600">Export complete</p>
                 <h2 id="export-feedback-title" className="mt-1 text-2xl font-semibold tracking-tight">What did you create?</h2>
-                <p className="mt-1 text-sm text-slate-500">One tap helps improve {APP_NAME}. No image data is collected.</p>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">One tap helps improve {APP_NAME}. No image data is collected.</p>
               </div>
               <button
                 onClick={handleCloseExportFeedback}
                 aria-label="Close feedback"
-                className="-mr-2 -mt-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                className="-mr-2 -mt-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:hover:bg-slate-800 dark:hover:text-white"
               >
                 ×
               </button>
@@ -512,7 +512,7 @@ export default function PhotoCollageApp({ workflow = DEFAULT_WORKFLOW }: PhotoCo
                   ref={index === 0 ? firstFeedbackButtonRef : undefined}
                   key={value}
                   onClick={() => handleExportFeedback(value)}
-                  className="min-h-12 rounded-xl border border-slate-200 px-3 py-2 text-left text-sm font-medium transition hover:border-indigo-300 hover:bg-indigo-50"
+                  className="min-h-12 rounded-xl border border-slate-200 px-3 py-2 text-left text-sm font-medium transition hover:border-indigo-300 hover:bg-indigo-50 dark:border-slate-700 dark:hover:border-indigo-400 dark:hover:bg-indigo-400/10"
                 >
                   {label}
                 </button>

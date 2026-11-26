@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { APP_NAME } from "@/utils/brand";
 import { SITE_URL } from "@/utils/site";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const SITE_HOSTNAME = new URL(SITE_URL).hostname;
 
@@ -14,23 +15,26 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main className="mx-auto max-w-2xl px-6 py-16 leading-relaxed text-slate-700">
-      <Link
-        href="/"
-        className="text-sm font-medium text-indigo-600 hover:underline"
-      >
-        ← Back to {APP_NAME}
-      </Link>
+    <main className="mx-auto min-h-dvh max-w-2xl px-6 py-8 leading-relaxed text-slate-700 dark:text-slate-300 dark:[&_h1]:text-white dark:[&_h2]:text-slate-100 sm:py-16">
+      <div className="flex items-center justify-between gap-4">
+        <Link
+          href="/"
+          className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-300"
+        >
+          ← Back to {APP_NAME}
+        </Link>
+        <ThemeToggle />
+      </div>
 
       <h1 className="mt-8 text-3xl font-bold text-slate-900">Privacy Policy</h1>
-      <p className="mt-2 text-sm text-slate-500">Effective date: November 25, 2026</p>
+      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Effective date: November 25, 2026</p>
 
       <p className="mt-6">
         {APP_NAME} is built privacy-first. This policy explains, in plain
         language, what happens to your data when you use the app at{" "}
         <a
           href={SITE_URL}
-          className="text-indigo-600 hover:underline"
+          className="text-indigo-600 hover:underline dark:text-indigo-300"
         >
           {SITE_HOSTNAME}
         </a>
@@ -89,7 +93,7 @@ export default function PrivacyPage() {
         On this hosted site (
         <a
           href={SITE_URL}
-          className="text-indigo-600 hover:underline"
+          className="text-indigo-600 hover:underline dark:text-indigo-300"
         >
           {SITE_HOSTNAME}
         </a>
