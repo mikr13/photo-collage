@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import imageCompression from 'browser-image-compression';
 import {
     ArrowLeft, Download, Loader2, RotateCcw, Repeat2,
     LayoutGrid, Sliders, Wand2, Palette, Crop,
@@ -58,6 +59,7 @@ interface CollageEditorProps {
 type Tab = 'layouts' | 'adjust' | 'filters' | 'format' | 'style';
 const TAB_ORDER: Tab[] = ['layouts', 'adjust', 'filters', 'format', 'style'];
 const PREVIEW_REFERENCE_WIDTH = 448;
+const BACKGROUND_SLOT: SlotPosition = { id: 'background', x: 0, y: 0, width: 100, height: 100 };
 
 export default function CollageEditor({
     photos,
@@ -86,6 +88,37 @@ export default function CollageEditor({
 }: CollageEditorProps) {
     const [tab, setTab] = useState<Tab>('layouts');
     const [toolsCollapsed, setToolsCollapsed] = useState(false);
+    const [backgroundSelected, setBackgroundSelected] = useState(false);
+    const [backgroundBusy, setBackgroundBusy] = useState(false);
+    const [backgroundError, setBackgroundError] = useState<string | null>(null);
+    const backgroundInputRef = useRef<HTMLInputElement>(null);
+    const backgroundBusyRef = useRef(false);
+    const background = collageStyle.backgroundImage;
+    const updateBackground = (updates: Partial<PhotoEdits>) => {
+        if (background) onUpdateStyle({ backgroundImage: { ...background, edits: { ...background.edits, ...updates } } });
+    };
+    const importBackground = async (file?: File) => {
+        if (!file || backgroundBusyRef.current) return;
+        if (!file.type.startsWith('image/') || file.size > 25 * 1024 * 1024) {
+            setBackgroundError('Choose an image smaller than 25 MB.');
+            return;
+        }
+        backgroundBusyRef.current = true;
+        setBackgroundBusy(true);
+        setBackgroundError(null);
+        try {
+            const compressed = await imageCompression(file, { maxSizeMB: 1.5, maxWidthOrHeight: 1920, useWebWorker: true, libURL: '/browser-image-compression.js' });
+            onUpdateStyle({ backgroundImage: { photo: { file: compressed, previewUrl: URL.createObjectURL(compressed) }, edits: { ...DEFAULT_EDITS } } });
+            setBackgroundSelected(true);
+            setSwapSource(null);
+            setTab('adjust');
+        } catch {
+            setBackgroundError('This image could not be opened. Try a JPEG, PNG or WebP.');
+        } finally {
+            backgroundBusyRef.current = false;
+            setBackgroundBusy(false);
+        }
+    };
     // Slot currently "armed" to be swapped. Tapping another slot swaps them.
     const [swapSource, setSwapSource] = useState<string | null>(null);
     const previewRef = useRef<HTMLDivElement>(null);
@@ -99,7 +132,7 @@ export default function CollageEditor({
     const aspectRatio = outputAspectRatio ?? selectedTemplate.aspectRatio;
     const styleScale = previewWidth / PREVIEW_REFERENCE_WIDTH;
 
-    const activeEdits: PhotoEdits = selectedSlot
+    const activeEdits: PhotoEdits = backgroundSelected && background ? background.edits : selectedSlot
         ? (slotEdits.get(selectedSlot) ?? DEFAULT_EDITS)
         : DEFAULT_EDITS;
 
@@ -117,6 +150,7 @@ export default function CollageEditor({
             return;
         }
         onSlotClick(slotId);
+        setBackgroundSelected(false);
     }, [swapSource, onSwapSlots, onSlotClick]);
 
     const handleLongPress = useCallback((slotId: string) => {
@@ -126,6 +160,7 @@ export default function CollageEditor({
         }
         setSwapSource(slotId);
         onSlotClick(slotId);
+        setBackgroundSelected(false);
     }, [onSlotClick]);
 
     const handleEditsChange = useCallback((slotId: string, updates: Partial<PhotoEdits>) => {
@@ -183,7 +218,7 @@ export default function CollageEditor({
                     <ThemeToggle />
                     <button
                         onClick={onSave}
-                        disabled={isSaving}
+                        disabled={isSaving || backgroundBusy}
                         className="flex min-h-10 items-center gap-2 rounded-full bg-blue-500 px-4 font-medium text-white transition hover:bg-blue-400 disabled:opacity-50 sm:px-5"
                     >
                         {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
@@ -214,11 +249,18 @@ export default function CollageEditor({
                             borderRadius: collageStyle.cornerRadius * styleScale,
                         }}
                     >
-                        <div className="relative h-full w-full">
+                        {background && <div className={`absolute inset-0 ${backgroundSelected ? '' : 'pointer-events-none'}`}>
+                            <EditableSlot slot={BACKGROUND_SLOT} slotNumber={0} photo={background.photo} edits={background.edits}
+                                isSelected={backgroundSelected} isSwapSource={false} swapArmed={false} comparisonLabel={null}
+                                slotBackground="transparent" cornerRadius={0} halfGap={0}
+                                onTap={() => setBackgroundSelected(true)} onLongPress={() => setBackgroundSelected(true)}
+                                onEditsChange={(_id, updates) => updateBackground(updates)} />
+                        </div>}
+                        <div className={`relative h-full w-full ${backgroundSelected && background ? 'pointer-events-none' : ''}`}>
                             {selectedTemplate.slots.map((slot, slotIndex) => {
                                 const photoIndex = photoAssignments.get(slot.id);
                                 const photo = photoIndex !== undefined ? photos[photoIndex] : null;
-                                const isSelected = selectedSlot === slot.id && !swapSource;
+                                const isSelected = selectedSlot === slot.id && !swapSource && !backgroundSelected;
                                 const edits = slotEdits.get(slot.id) ?? DEFAULT_EDITS;
 
                                 return (
@@ -234,7 +276,7 @@ export default function CollageEditor({
                                         comparisonLabel={comparisonLabels.enabled && slotIndex < 2
                                             ? (slotIndex === 0 ? comparisonLabels.left : comparisonLabels.right)
                                             : null}
-                                        slotBackground={collageStyle.background}
+                                        slotBackground={background ? 'transparent' : collageStyle.background}
                                         cornerRadius={collageStyle.cornerRadius * styleScale}
                                         halfGap={(collageStyle.gap * styleScale) / 2}
                                         onTap={handleTap}
@@ -277,7 +319,28 @@ export default function CollageEditor({
                         </span>
                     </button>
 
-                    <div id="editor-tools-content" className={`${toolsCollapsed ? 'hidden' : 'flex'} min-h-0 flex-col md:flex-1`}>
+                    <div id="editor-tools-content" className={`${toolsCollapsed ? 'hidden' : 'flex'} max-h-[42dvh] min-h-0 flex-col md:max-h-none md:flex-1`}>
+                        <div className="shrink-0 space-y-2 border-t border-slate-200 p-3 dark:border-slate-700">
+                            <label className="flex items-center gap-2 text-xs font-medium">
+                                Edit layer
+                                <select aria-label="Edit layer" className="min-h-10 min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2 text-sm dark:border-slate-600 dark:bg-slate-800"
+                                    value={backgroundSelected && background ? 'background' : selectedSlot ?? ''}
+                                    onChange={(event) => { setSwapSource(null); setBackgroundSelected(event.target.value === 'background'); if (event.target.value !== 'background') onSlotClick(event.target.value); }}>
+                                    {!selectedSlot && <option value="" disabled>Choose a layer</option>}
+                                    {selectedTemplate.slots.map((slot, index) => <option key={slot.id} value={slot.id}>Photo {index + 1}</option>)}
+                                    {background && <option value="background">Background image</option>}
+                                </select>
+                            </label>
+                            <div className="flex gap-2">
+                                <button type="button" disabled={backgroundBusy} onClick={() => backgroundInputRef.current?.click()} className="min-h-10 flex-1 rounded-lg bg-slate-100 px-3 text-xs font-semibold dark:bg-slate-800">
+                                    {backgroundBusy ? 'Opening image…' : background ? 'Replace background image' : 'Add background image'}
+                                </button>
+                                {background && <button type="button" disabled={backgroundBusy} onClick={() => { onUpdateStyle({ backgroundImage: undefined }); setBackgroundSelected(false); }} className="min-h-10 rounded-lg px-3 text-xs font-semibold" aria-label="Remove background image">Remove</button>}
+                            </div>
+                            <input ref={backgroundInputRef} type="file" accept="image/*" aria-label="Background image file" className="hidden" onChange={(event) => { void importBackground(event.target.files?.[0]); event.target.value = ''; }} />
+                            {backgroundError && <p role="alert" className="text-xs text-red-500">{backgroundError}</p>}
+                            {backgroundSelected && background && <p className="text-xs text-blue-500">Editing background · Drag the canvas to move; pinch or scroll to zoom. Use Style to reveal more with padding and gaps.</p>}
+                        </div>
                         <div className="flex shrink-0 border-y border-slate-200 dark:border-slate-700 md:border-t-0" role="tablist" aria-label="Editing tools" onKeyDown={handleTabKeyDown}>
                             <TabButton tabId="layouts" active={tab === 'layouts'} onClick={() => setTab('layouts')} icon={<LayoutGrid className="h-5 w-5" />} label="Layouts" />
                             <TabButton tabId="adjust" active={tab === 'adjust'} onClick={() => setTab('adjust')} icon={<Sliders className="h-5 w-5" />} label="Adjust" />
@@ -286,27 +349,28 @@ export default function CollageEditor({
                             <TabButton tabId="style" active={tab === 'style'} onClick={() => setTab('style')} icon={<Palette className="h-5 w-5" />} label="Style" />
                         </div>
 
-                        <div id="editor-tool-panel" role="tabpanel" aria-labelledby={`editor-tab-${tab}`} className="max-h-[40dvh] overflow-y-auto md:max-h-none md:flex-1">
+                        <div id="editor-tool-panel" role="tabpanel" aria-labelledby={`editor-tab-${tab}`} className="min-h-0 overflow-y-auto md:flex-1">
                             {tab === 'layouts' && (
                                 <LayoutsTab templates={availableTemplates} selectedTemplate={selectedTemplate} onTemplateSelect={handleTemplateSelect} />
                             )}
                             {tab === 'adjust' && (
                                 <AdjustTab
-                                    selectedSlot={selectedSlot}
+                                    selectedSlot={backgroundSelected && background ? 'background' : selectedSlot}
                                     edits={activeEdits}
-                                    onUpdate={(updates) => selectedSlot && onUpdateSlotEdits(selectedSlot, updates)}
-                                    onReset={() => selectedSlot && onResetSlotEdits(selectedSlot)}
+                                    onUpdate={(updates) => backgroundSelected ? updateBackground(updates) : selectedSlot && onUpdateSlotEdits(selectedSlot, updates)}
+                                    onReset={() => backgroundSelected ? updateBackground(DEFAULT_EDITS) : selectedSlot && onResetSlotEdits(selectedSlot)}
+                                    backgroundSelected={backgroundSelected}
                                     onArmSwap={armSwapFromButton}
                                     onApplyFitAll={(fitMode) => onApplyEditToAll({ fitMode, scale: 1, offsetX: 0, offsetY: 0 })}
                                 />
                             )}
                             {tab === 'filters' && (
                                 <FiltersTab
-                                    selectedSlot={selectedSlot}
-                                    selectedPhoto={selectedSlot ? photos[photoAssignments.get(selectedSlot) ?? -1] ?? null : null}
+                                    selectedSlot={backgroundSelected && background ? 'background' : selectedSlot}
+                                    selectedPhoto={backgroundSelected && background ? background.photo : selectedSlot ? photos[photoAssignments.get(selectedSlot) ?? -1] ?? null : null}
                                     currentFilter={activeEdits.filter}
-                                    onPick={(filter) => selectedSlot && onUpdateSlotEdits(selectedSlot, { filter })}
-                                    onApplyAll={(filter) => onApplyEditToAll({ filter })}
+                                    onPick={(filter) => backgroundSelected ? updateBackground({ filter }) : selectedSlot && onUpdateSlotEdits(selectedSlot, { filter })}
+                                    onApplyAll={backgroundSelected ? undefined : (filter) => onApplyEditToAll({ filter })}
                                 />
                             )}
                             {tab === 'format' && (
@@ -593,7 +657,7 @@ const EditableSlot = React.memo(function EditableSlot({
                 ref={innerRef}
                 role="button"
                 tabIndex={0}
-                aria-label={photo ? `Select photo slot ${slotNumber}` : `Empty photo slot ${slotNumber}`}
+                aria-label={slotId === 'background' ? 'Position background image' : photo ? `Select photo slot ${slotNumber}` : `Empty photo slot ${slotNumber}`}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerEnd}
@@ -745,8 +809,9 @@ function LayoutsTab({
 }
 
 function AdjustTab({
-    selectedSlot, edits, onUpdate, onReset, onArmSwap, onApplyFitAll,
+    selectedSlot, edits, onUpdate, onReset, onArmSwap, onApplyFitAll, backgroundSelected = false,
 }: {
+    backgroundSelected?: boolean;
     selectedSlot: string | null;
     edits: PhotoEdits;
     onUpdate: (updates: Partial<PhotoEdits>) => void;
@@ -771,12 +836,12 @@ function AdjustTab({
             <div>
                 <div className="mb-2 flex items-center justify-between">
                     <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Photo fit</p>
-                    <button
+                    {!backgroundSelected && <button
                         onClick={() => onApplyFitAll(edits.fitMode)}
                         className="text-xs font-medium text-blue-400 hover:text-blue-300"
                     >
                         Apply to all
-                    </button>
+                    </button>}
                 </div>
                 <div className="grid grid-cols-2 rounded-xl bg-slate-100 p-1 dark:bg-slate-800" role="group" aria-label="Photo fit">
                     {([
@@ -815,13 +880,13 @@ function AdjustTab({
             <SliderRow label="Blur" value={edits.blur} min={0} max={6} step={0.1} unit="px" onChange={(v) => onUpdate({ blur: v })} />
 
             <div className="flex gap-2">
-                <button
+                {!backgroundSelected && <button
                     onClick={onArmSwap}
                     className="flex-1 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-900 text-sm font-semibold flex items-center justify-center gap-2"
                 >
                     <Repeat2 className="w-4 h-4" />
                     Swap…
-                </button>
+                </button>}
                 <button
                     onClick={onReset}
                     className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-slate-200 py-2.5 text-sm font-medium hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600"
@@ -886,7 +951,7 @@ function FiltersTab({
     selectedPhoto: PhotoData | null;
     currentFilter: FilterId;
     onPick: (filter: FilterId) => void;
-    onApplyAll: (filter: FilterId) => void;
+    onApplyAll?: (filter: FilterId) => void;
 }) {
     if (!selectedSlot || !selectedPhoto) {
         return (
@@ -900,13 +965,13 @@ function FiltersTab({
         <div className="px-4 py-3">
             <div className="flex items-center justify-between gap-3 mb-3">
                 <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Filters</p>
-                <button
+                {onApplyAll && <button
                     onClick={() => onApplyAll(currentFilter)}
                     className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold shadow-sm transition-colors"
                 >
                     <Check className="w-4 h-4" />
                     Apply to all
-                </button>
+                </button>}
             </div>
             <div className="grid grid-cols-4 gap-3">
                 {FILTER_OPTIONS.map((opt) => {

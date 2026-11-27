@@ -227,6 +227,12 @@ export async function generateCollage(
   ctx.fillStyle = collageStyle.background || '#ffffff';
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
+  if (collageStyle.backgroundImage) {
+    const { photo, edits } = collageStyle.backgroundImage;
+    const image = await loadImage(photo.previewUrl);
+    drawSlot(ctx, image, 0, 0, canvasWidth, canvasHeight, edits, cornerPx);
+  }
+
   const innerX = paddingPx;
   const innerY = paddingPx;
   const innerW = canvasWidth - paddingPx * 2;

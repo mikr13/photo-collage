@@ -56,6 +56,10 @@ export default function PhotoCollageApp({ workflow = DEFAULT_WORKFLOW }: PhotoCo
   const [slotEdits, setSlotEdits] = useState<Map<string, PhotoEdits>>(new Map());
   // Collage-wide style
   const [collageStyle, setCollageStyle] = useState<CollageStyle>(DEFAULT_STYLE);
+  const backgroundUrl = collageStyle.backgroundImage?.photo.previewUrl;
+  useEffect(() => () => {
+    if (backgroundUrl) URL.revokeObjectURL(backgroundUrl);
+  }, [backgroundUrl]);
   // Output aspect ratio override (null = follow the layout's own ratio)
   const [outputAspectRatio, setOutputAspectRatio] = useState<number | null>(workflow.outputAspectRatio);
   const [exportOptions, setExportOptions] = useState<ExportOptions>(DEFAULT_EXPORT_OPTIONS);

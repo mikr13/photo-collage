@@ -2,6 +2,8 @@
  * Per-slot photo edits and collage-wide style settings.
  */
 
+import type { PhotoData } from '@/types/photo';
+
 export type FilterId =
     | 'none'
     | 'mono'
@@ -259,6 +261,7 @@ export function editsToTransform(edits: PhotoEdits, effectiveScale = edits.scale
 // ===== Collage-wide style =====
 
 export interface CollageStyle {
+    backgroundImage?: { photo: PhotoData; edits: PhotoEdits };
     background: string;   // hex color for canvas background
     gap: number;          // 0 .. 24 (px in editor; scaled for export)
     cornerRadius: number; // 0 .. 32 (px in editor; scaled for export)
