@@ -7,7 +7,7 @@ import {
     ArrowLeft, Download, Loader2, RotateCcw, Repeat2,
     LayoutGrid, Sliders, Wand2, Palette, Crop,
     RotateCw, ZoomIn, ZoomOut, ArrowUp, ArrowDown, ArrowLeftIcon, ArrowRightIcon,
-    Check, X, Hand, ChevronDown, ChevronUp, PanelRightClose, PanelRightOpen,
+    Check, Hand, ChevronDown, ChevronUp, PanelRightClose, PanelRightOpen,
 } from 'lucide-react';
 import { CollageTemplate, SlotPosition } from '@/utils/templates';
 import {
@@ -22,13 +22,13 @@ import {
     clampOffsets,
     maxOffsetPct,
     CollageStyle,
-    BACKGROUND_PRESETS,
     ASPECT_PRESETS,
 } from '@/utils/photoEdits';
 
 import { PhotoData } from '@/types/photo';
 import type { ComparisonLabels, ExportOptions } from '@/utils/collageGenerator';
 import ThemeToggle from '@/components/ThemeToggle';
+import { InspectorSection, LayerPicker, SliderRow, StyleInspector } from '@/components/editor/InspectorControls';
 
 interface CollageEditorProps {
     photos: PhotoData[];
@@ -290,12 +290,14 @@ export default function CollageEditor({
 
                     <p className="mt-3 flex items-center gap-1.5 px-4 text-center text-[11px] text-slate-500 dark:text-slate-400">
                         <Hand className="h-3.5 w-3.5 shrink-0" />
-                        <span className="md:hidden">Tap to select · Drag to move · Pinch to zoom · Hold to swap</span>
-                        <span className="hidden md:inline">Click to select · Drag to move · Scroll or pinch to zoom · Right-click to swap</span>
+                        {backgroundSelected && background ? <span>Background selected · Drag to move · Pinch or scroll to zoom</span> : <>
+                            <span className="md:hidden">Tap to select · Drag to move · Pinch to zoom · Hold to swap</span>
+                            <span className="hidden md:inline">Click to select · Drag to move · Scroll or pinch to zoom · Right-click to swap</span>
+                        </>}
                     </p>
                 </section>
 
-                <aside className={`flex shrink-0 flex-col border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] transition-[width] duration-200 dark:border-slate-700 dark:bg-slate-900 md:border-l md:border-t-0 md:pb-0 ${toolsCollapsed ? 'md:w-14' : 'md:w-[27rem]'}`} aria-label="Editing tools">
+                <aside className={`editor-inspector flex shrink-0 flex-col pb-[env(safe-area-inset-bottom)] transition-[width] duration-200 md:pb-0 ${toolsCollapsed ? 'md:w-14' : 'md:w-[23rem]'}`} aria-label="Editing tools">
                     <button
                         type="button"
                         onClick={() => setToolsCollapsed((collapsed) => !collapsed)}
@@ -306,7 +308,7 @@ export default function CollageEditor({
                     >
                         <span className={`items-center gap-2 ${toolsCollapsed ? 'flex md:hidden' : 'flex'}`}>
                             <Sliders className="h-4 w-4 text-blue-400" />
-                            Editing tools
+                            Inspector
                         </span>
                         <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
                             <span className={toolsCollapsed ? 'md:hidden' : ''}>{toolsCollapsed ? 'Show' : 'Hide'}</span>
@@ -320,28 +322,8 @@ export default function CollageEditor({
                     </button>
 
                     <div id="editor-tools-content" className={`${toolsCollapsed ? 'hidden' : 'flex'} max-h-[42dvh] min-h-0 flex-col md:max-h-none md:flex-1`}>
-                        <div className="shrink-0 space-y-2 border-t border-slate-200 p-3 dark:border-slate-700">
-                            <label className="flex items-center gap-2 text-xs font-medium">
-                                Edit layer
-                                <select aria-label="Edit layer" className="min-h-10 min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2 text-sm dark:border-slate-600 dark:bg-slate-800"
-                                    value={backgroundSelected && background ? 'background' : selectedSlot ?? ''}
-                                    onChange={(event) => { setSwapSource(null); setBackgroundSelected(event.target.value === 'background'); if (event.target.value !== 'background') onSlotClick(event.target.value); }}>
-                                    {!selectedSlot && <option value="" disabled>Choose a layer</option>}
-                                    {selectedTemplate.slots.map((slot, index) => <option key={slot.id} value={slot.id}>Photo {index + 1}</option>)}
-                                    {background && <option value="background">Background image</option>}
-                                </select>
-                            </label>
-                            <div className="flex gap-2">
-                                <button type="button" disabled={backgroundBusy} onClick={() => backgroundInputRef.current?.click()} className="min-h-10 flex-1 rounded-lg bg-slate-100 px-3 text-xs font-semibold dark:bg-slate-800">
-                                    {backgroundBusy ? 'Opening image…' : background ? 'Replace background image' : 'Add background image'}
-                                </button>
-                                {background && <button type="button" disabled={backgroundBusy} onClick={() => { onUpdateStyle({ backgroundImage: undefined }); setBackgroundSelected(false); }} className="min-h-10 rounded-lg px-3 text-xs font-semibold" aria-label="Remove background image">Remove</button>}
-                            </div>
-                            <input ref={backgroundInputRef} type="file" accept="image/*" aria-label="Background image file" className="hidden" onChange={(event) => { void importBackground(event.target.files?.[0]); event.target.value = ''; }} />
-                            {backgroundError && <p role="alert" className="text-xs text-red-500">{backgroundError}</p>}
-                            {backgroundSelected && background && <p className="text-xs text-blue-500">Editing background · Drag the canvas to move; pinch or scroll to zoom. Use Style to reveal more with padding and gaps.</p>}
-                        </div>
-                        <div className="flex shrink-0 border-y border-slate-200 dark:border-slate-700 md:border-t-0" role="tablist" aria-label="Editing tools" onKeyDown={handleTabKeyDown}>
+                        <input ref={backgroundInputRef} type="file" accept="image/*" aria-label="Background image file" className="hidden" onChange={(event) => { void importBackground(event.target.files?.[0]); event.target.value = ''; }} />
+                        <div className="inspector-tabs" role="tablist" aria-label="Editing tools" onKeyDown={handleTabKeyDown}>
                             <TabButton tabId="layouts" active={tab === 'layouts'} onClick={() => setTab('layouts')} icon={<LayoutGrid className="h-5 w-5" />} label="Layouts" />
                             <TabButton tabId="adjust" active={tab === 'adjust'} onClick={() => setTab('adjust')} icon={<Sliders className="h-5 w-5" />} label="Adjust" />
                             <TabButton tabId="filters" active={tab === 'filters'} onClick={() => setTab('filters')} icon={<Wand2 className="h-5 w-5" />} label="Filters" />
@@ -349,7 +331,17 @@ export default function CollageEditor({
                             <TabButton tabId="style" active={tab === 'style'} onClick={() => setTab('style')} icon={<Palette className="h-5 w-5" />} label="Style" />
                         </div>
 
-                        <div id="editor-tool-panel" role="tabpanel" aria-labelledby={`editor-tab-${tab}`} className="min-h-0 overflow-y-auto md:flex-1">
+                        <div key={tab} id="editor-tool-panel" role="tabpanel" aria-labelledby={`editor-tab-${tab}`} className="min-h-0 overflow-y-auto md:flex-1">
+                            {(tab === 'adjust' || tab === 'filters') && <>
+                                <LayerPicker active={backgroundSelected && background ? 'background' : selectedSlot}
+                                    layers={[
+                                        ...selectedTemplate.slots.map((slot, index) => ({ id: slot.id, label: `Photo ${index + 1}`, photo: photos[photoAssignments.get(slot.id) ?? -1] ?? null })),
+                                        ...(background ? [{ id: 'background', label: 'Background', photo: background.photo }] : []),
+                                    ]}
+                                    onSelect={(id) => { setSwapSource(null); setBackgroundSelected(id === 'background'); if (id !== 'background') onSlotClick(id); }} />
+                                {backgroundSelected && background && <p className="inspector-hint">Editing background. Drag to move, pinch or scroll to zoom.</p>}
+                                {backgroundError && <p role="alert" className="inspector-hint text-red-500">{backgroundError}</p>}
+                            </>}
                             {tab === 'layouts' && (
                                 <LayoutsTab templates={availableTemplates} selectedTemplate={selectedTemplate} onTemplateSelect={handleTemplateSelect} />
                             )}
@@ -383,7 +375,10 @@ export default function CollageEditor({
                                     onUpdateComparisonLabels={onUpdateComparisonLabels}
                                 />
                             )}
-                            {tab === 'style' && <StyleTab style={collageStyle} onUpdate={onUpdateStyle} />}
+                            {tab === 'style' && <StyleInspector style={collageStyle} onUpdate={onUpdateStyle} busy={backgroundBusy} error={backgroundError}
+                                onUpload={() => backgroundInputRef.current?.click()}
+                                onEditBackground={() => { setBackgroundSelected(true); setSwapSource(null); setTab('adjust'); }}
+                                onRemoveBackground={() => { onUpdateStyle({ backgroundImage: undefined }); setBackgroundSelected(false); }} />}
                         </div>
                     </div>
                 </aside>
@@ -751,8 +746,7 @@ function TabButton({ tabId, active, onClick, icon, label }: {
             aria-selected={active}
             aria-controls="editor-tool-panel"
             tabIndex={active ? 0 : -1}
-            className={`flex-1 flex flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-medium transition-colors
-                ${active ? 'border-b-2 border-blue-500 bg-blue-500/10 text-blue-600 dark:bg-slate-700/40 dark:text-blue-400' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'}`}
+            className="inspector-tab"
         >
             {icon}
             <span>{label}</span>
@@ -768,7 +762,7 @@ function LayoutsTab({
     onTemplateSelect: (t: CollageTemplate) => void;
 }) {
     return (
-        <div className="px-4 py-3">
+        <div className="inspector-section">
             <p className="mb-2 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">{templates.length} Layouts</p>
             <div className="grid grid-cols-4 gap-3">
                 {templates.map((template) => {
@@ -832,10 +826,10 @@ function AdjustTab({
     const ROT_STEP = 90;
 
     return (
-        <div className="px-4 py-3 space-y-4">
-            <div>
+        <div className="inspector-stack">
+            <InspectorSection title="Image fit">
                 <div className="mb-2 flex items-center justify-between">
-                    <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Photo fit</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">How the image fills its frame</p>
                     {!backgroundSelected && <button
                         onClick={() => onApplyFitAll(edits.fitMode)}
                         className="text-xs font-medium text-blue-400 hover:text-blue-300"
@@ -859,9 +853,10 @@ function AdjustTab({
                         </button>
                     ))}
                 </div>
-            </div>
+            </InspectorSection>
 
-            <div className="flex flex-wrap gap-2">
+            <InspectorSection title="Transform" description="Position, rotate and scale">
+            <div className="inspector-transform-grid">
                 <QuickButton onClick={() => onUpdate({ rotation: normalizeRotation(edits.rotation - ROT_STEP) })} icon={<RotateCcw className="w-4 h-4" />} label="Rotate L" />
                 <QuickButton onClick={() => onUpdate({ rotation: normalizeRotation(edits.rotation + ROT_STEP) })} icon={<RotateCw className="w-4 h-4" />} label="Rotate R" />
                 <QuickButton onClick={() => onUpdate({ scale: Math.min(3, edits.scale + SCALE_STEP) })} icon={<ZoomIn className="w-4 h-4" />} label="Zoom +" />
@@ -874,22 +869,25 @@ function AdjustTab({
 
             <SliderRow label="Rotation" value={edits.rotation} min={-180} max={180} step={1} unit="°" onChange={(v) => onUpdate({ rotation: v })} />
             <SliderRow label="Zoom" value={edits.scale} min={1} max={3} step={0.01} format={(v) => `${v.toFixed(2)}x`} onChange={(v) => onUpdate({ scale: v })} />
+            </InspectorSection>
+            <InspectorSection title="Tone & color">
             <SliderRow label="Brightness" value={edits.brightness} min={0.5} max={1.5} step={0.01} format={(v) => v.toFixed(2)} onChange={(v) => onUpdate({ brightness: v })} />
             <SliderRow label="Contrast" value={edits.contrast} min={0.5} max={1.5} step={0.01} format={(v) => v.toFixed(2)} onChange={(v) => onUpdate({ contrast: v })} />
             <SliderRow label="Saturation" value={edits.saturation} min={0} max={2} step={0.01} format={(v) => v.toFixed(2)} onChange={(v) => onUpdate({ saturation: v })} />
             <SliderRow label="Blur" value={edits.blur} min={0} max={6} step={0.1} unit="px" onChange={(v) => onUpdate({ blur: v })} />
+            </InspectorSection>
 
-            <div className="flex gap-2">
+            <div className="inspector-footer flex gap-2">
                 {!backgroundSelected && <button
                     onClick={onArmSwap}
-                    className="flex-1 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-900 text-sm font-semibold flex items-center justify-center gap-2"
+                    className="inspector-secondary-button flex-1"
                 >
                     <Repeat2 className="w-4 h-4" />
                     Swap…
                 </button>}
                 <button
                     onClick={onReset}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-slate-200 py-2.5 text-sm font-medium hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600"
+                    className="inspector-text-button flex-1"
                 >
                     <RotateCcw className="w-4 h-4" />
                     Reset
@@ -903,7 +901,7 @@ function QuickButton({ onClick, icon, label }: { onClick: () => void; icon: Reac
     return (
         <button
             onClick={onClick}
-            className="flex items-center gap-1.5 rounded-full bg-slate-200 px-3 py-2 text-xs hover:bg-slate-300 active:bg-slate-400 dark:bg-slate-700 dark:hover:bg-slate-600 dark:active:bg-slate-500"
+            className="inspector-quick-button"
         >
             {icon}
             <span>{label}</span>
@@ -911,38 +909,6 @@ function QuickButton({ onClick, icon, label }: { onClick: () => void; icon: Reac
     );
 }
 
-function SliderRow({
-    label, value, min, max, step, unit, format, onChange,
-}: {
-    label: string;
-    value: number;
-    min: number;
-    max: number;
-    step: number;
-    unit?: string;
-    format?: (v: number) => string;
-    onChange: (v: number) => void;
-}) {
-    const display = format ? format(value) : `${Math.round(value)}${unit ?? ''}`;
-    return (
-        <div>
-            <div className="flex justify-between items-baseline mb-1">
-                <span className="text-xs text-slate-700 dark:text-slate-300">{label}</span>
-                <span className="text-xs tabular-nums text-slate-500 dark:text-slate-400">{display}</span>
-            </div>
-            <input
-                type="range"
-                aria-label={label}
-                min={min}
-                max={max}
-                step={step}
-                value={value}
-                onChange={(e) => onChange(parseFloat(e.target.value))}
-                className="w-full accent-blue-500 h-6"
-            />
-        </div>
-    );
-}
 
 function FiltersTab({
     selectedSlot, selectedPhoto, currentFilter, onPick, onApplyAll,
@@ -962,7 +928,7 @@ function FiltersTab({
     }
 
     return (
-        <div className="px-4 py-3">
+        <div className="inspector-section">
             <div className="flex items-center justify-between gap-3 mb-3">
                 <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Filters</p>
                 {onApplyAll && <button
@@ -1113,72 +1079,4 @@ function FormatTab({
             </div>
         </div>
     );
-}
-
-function StyleTab({
-    style, onUpdate,
-}: {
-    style: CollageStyle;
-    onUpdate: (updates: Partial<CollageStyle>) => void;
-}) {
-    return (
-        <div className="px-4 py-3 space-y-5">
-            <div>
-                <p className="mb-2 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Background</p>
-                <div className="flex gap-2 flex-wrap">
-                    {BACKGROUND_PRESETS.map((preset) => {
-                        const isSelected = style.background.toLowerCase() === preset.value.toLowerCase();
-                        return (
-                            <button
-                                key={preset.value}
-                                onClick={() => onUpdate({ background: preset.value })}
-                                aria-label={`${preset.name} background`}
-                                aria-pressed={isSelected}
-                                className={`relative w-9 h-9 rounded-full border-2 transition-all
-                                    ${isSelected ? 'scale-110 border-blue-500' : 'border-slate-300 hover:border-slate-500 dark:border-slate-600 dark:hover:border-slate-400'}`}
-                                style={{ background: preset.value }}
-                                title={preset.name}
-                            >
-                                {isSelected && (
-                                    <Check className="w-4 h-4 absolute inset-0 m-auto" style={{ color: isLight(preset.value) ? '#000' : '#fff' }} />
-                                )}
-                            </button>
-                        );
-                    })}
-                    <label className="relative flex h-9 w-9 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-slate-400 hover:border-slate-600 dark:border-slate-500 dark:hover:border-slate-300">
-                        <input
-                            type="color"
-                            aria-label="Custom background color"
-                            value={style.background}
-                            onChange={(e) => onUpdate({ background: e.target.value })}
-                            className="absolute inset-0 opacity-0 cursor-pointer"
-                        />
-                        <Palette className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-                    </label>
-                </div>
-            </div>
-
-            <SliderRow label="Photo gap" value={style.gap} min={0} max={24} step={1} unit="px" onChange={(v) => onUpdate({ gap: v })} />
-            <SliderRow label="Corner radius" value={style.cornerRadius} min={0} max={32} step={1} unit="px" onChange={(v) => onUpdate({ cornerRadius: v })} />
-            <SliderRow label="Outer padding" value={style.padding} min={0} max={40} step={1} unit="px" onChange={(v) => onUpdate({ padding: v })} />
-
-            <button
-                onClick={() => onUpdate({ background: '#ffffff', gap: 6, cornerRadius: 4, padding: 0 })}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-200 py-2.5 text-sm font-medium hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600"
-            >
-                <X className="w-4 h-4" />
-                Reset style
-            </button>
-        </div>
-    );
-}
-
-function isLight(hex: string): boolean {
-    const m = hex.replace('#', '');
-    if (m.length < 6) return true;
-    const r = parseInt(m.slice(0, 2), 16);
-    const g = parseInt(m.slice(2, 4), 16);
-    const b = parseInt(m.slice(4, 6), 16);
-    const luma = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-    return luma > 0.6;
 }
